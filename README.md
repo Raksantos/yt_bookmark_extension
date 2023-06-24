@@ -1,2 +1,3 @@
-# yt_bookmark_extension
-A simple chrome extensions for adding bookmarks on youtube videos
+# Youtube Mark Extension
+
+## A simple chrome extensions for adding bookmarks on youtube videos
