@@ -7,7 +7,6 @@ const addNewBookmark = (bookmarksElement, bookmark) => {
 
 	bookmarkTitleElement.textContent = bookmark.description;
 	bookmarkTitleElement.className = "bookmark-title";
-
 	controlsElement.className = "bookmark-controls";
 
 	newBookmarkElement.id = `bookmark-${bookmark.time}`;
@@ -15,6 +14,7 @@ const addNewBookmark = (bookmarksElement, bookmark) => {
 	newBookmarkElement.setAttribute("timestamp", bookmark.time);
 
 	setBookmarkAttributes("play", onPlay, controlsElement);
+	setBookmarkAttributes("delete", onDelete, controlsElement);
 
 	newBookmarkElement.appendChild(bookmarkTitleElement);
 	newBookmarkElement.appendChild(controlsElement);
@@ -35,12 +35,31 @@ const viewBookmarks = (currentBookmarks=[]) => {
 	}
 };
 
-const onPlay = e => {};
+const onPlay = async e => {
+	const bookmarkTime = e.target.parentNode.parentNode.getAttribute("timestamp");
+	const activeTab = await getActiveTabURL();
 
-const onDelete = e => {};
+	chrome.tabs.sendMessage(activeTab.id, {
+		type: "PLAY",
+		value: bookmarkTime
+	})
+};
+
+const onDelete = async e => {
+	const activeTab = await getActiveTabURL();
+	const bookmarkTime = e.target.parentNode.parentNode.getAttribute("timestamp");
+	const bookmarkElementToDelete = document.getElementById(`bookmark-${bookmarkTime}`);
+
+	bookmarkElementToDelete.parentNode.removeChild(bookmarkElementToDelete);
+
+	chrome.tabs.sendMessage(activeTab.id, {
+		type: "DELETE",
+		value: bookmarkTime
+	}, viewBookmarks);
+};
 
 const setBookmarkAttributes = (src, eventListener, controlParentElement) => {
-	const controlElement = document.createElement("div");
+	const controlElement = document.createElement("img");
 
 	controlElement.src = `assets/${src}.png`;
 	controlElement.title = src;
